@@ -80,24 +80,9 @@ WITH PostiOccupatiPerVoloClasse AS (
     JOIN PrenotazioniPasseggeri pp ON sp.prenotazione_id = pp.prenotazione_id
     GROUP BY sp.compagnia_id, sp.volo_num, CAST(sp.data_ora_partenza_prevista AS DATE), sp.classe_id
 ),
-
 Classi AS (
     SELECT DISTINCT classe_id FROM SegmentoPrenotazione
-),
-
-VoliConAereo AS (
-    SELECT 
-        va.compagnia_id,
-        va.volo_num,
-        vs.data_ora_partenza_prevista,
-        va.aereo_id
-    FROM VoliAstratti va
-    JOIN VoliSpecifici vs 
-      ON va.compagnia_id = vs.compagnia_id 
-     AND va.volo_num = vs.volo_num 
-     AND vs.data_ora_partenza_prevista = vs.data_ora_partenza_prevista
 )
-
 SELECT 
     vs.compagnia_id,
     vs.volo_num,
@@ -124,11 +109,7 @@ LEFT JOIN PostiOccupatiPerVoloClasse pocl
     AND vs.volo_num = pocl.volo_num
     AND CAST(vs.data_ora_partenza_prevista AS DATE) = pocl.data_partenza
     AND c.classe_id = pocl.classe_id
-JOIN VoliConAereo va
-    ON vs.compagnia_id = va.compagnia_id
-   AND vs.volo_num = va.volo_num
-   AND vs.data_ora_partenza_prevista = va.data_ora_partenza_prevista
-JOIN Aereo a ON va.aereo_id = a.aereo_id
+JOIN Aereo a ON vs.aereo_id = a.aereo_id
 WHERE CAST(vs.data_ora_partenza_prevista AS DATE) = CAST(GETDATE() AS DATE)
   AND vs.data_ora_partenza_prevista >= GETDATE()
 ORDER BY vs.compagnia_id, vs.volo_num, vs.data_ora_partenza_prevista, c.classe_id;
@@ -158,21 +139,7 @@ WITH PostiOccupatiPerVoloClasse AS (
     FROM SegmentoPrenotazione sp
     JOIN PrenotazioniPasseggeri pp ON sp.prenotazione_id = pp.prenotazione_id
     GROUP BY sp.compagnia_id, sp.volo_num, sp.data_ora_partenza_prevista, sp.classe_id
-),
-
-VoliConAereo AS (
-    SELECT 
-        va.compagnia_id,
-        va.volo_num,
-        vs.data_ora_partenza_prevista,
-        va.aereo_id
-    FROM VoliAstratti va
-    JOIN VoliSpecifici vs 
-      ON va.compagnia_id = vs.compagnia_id 
-     AND va.volo_num = vs.volo_num 
-     AND vs.data_ora_partenza_prevista = vs.data_ora_partenza_prevista
 )
-
 SELECT 
     po.compagnia_id,
     po.volo_num,
@@ -190,10 +157,10 @@ SELECT
         ELSE 0
     END AS posti_disponibili
 FROM PostiOccupatiPerVoloClasse po
-JOIN VoliConAereo va ON po.compagnia_id = va.compagnia_id 
-                   AND po.volo_num = va.volo_num 
-                   AND po.data_ora_partenza_prevista = va.data_ora_partenza_prevista
-JOIN Aereo a ON va.aereo_id = a.aereo_id
+JOIN VoliSpecifici vs ON po.compagnia_id = vs.compagnia_id 
+                    AND po.volo_num = vs.volo_num 
+                    AND po.data_ora_partenza_prevista = vs.data_ora_partenza_prevista
+JOIN Aereo a ON vs.aereo_id = a.aereo_id
 ORDER BY po.compagnia_id, po.volo_num, po.data_ora_partenza_prevista, po.classe_id;
 
 -- 8 - tutte le prenotazioni con itinerario multi segmento
