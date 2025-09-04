@@ -19,6 +19,7 @@ Come avviare il progetto
 2 - Importa lo script CompagniaAereaDB.sql in SQL Server Express in SSMS
 3 - Esegui le query in QueryEsempio_CompagniaAerea.sql
 
+Note 04/09/2025: caricato nuove modifiche dopo revisione PW
 
 Autore
 Nome: Beatrice Cavagnolo
